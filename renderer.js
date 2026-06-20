@@ -174,20 +174,20 @@ const transpile = (src) => {
 }
 
 const makeErrorDiv = (src, err) => {
-  const wrap = document.createElement("div");
-  wrap.className = "cell observablehq observablehq--error";
+  const w = document.createElement("div");
+  w.className = "cell observablehq observablehq--error";
 
-  const msg = document.createElement("div");
-  msg.className = "observablehq--inspect";
-  msg.textContent = "Error: "+err.message;
-  wrap.appendChild(msg);
+  const e = document.createElement("div");
+  e.className = "observablehq--inspect";
+  e.textContent = "Error: "+err.message;
+  w.appendChild(e);
 
-  const src = document.createElement("div");
-  src.className = "observablehq--inspect";
-  src.textContent = "Source: "+src;
-  wrap.appendChild(src);
+  const s = document.createElement("div");
+  s.className = "observablehq--inspect";
+  s.textContent = "Source: "+src;
+  w.appendChild(s);
 
-  return wrap;
+  return w;
 }
 
 const preRegister = (main, name) => {
