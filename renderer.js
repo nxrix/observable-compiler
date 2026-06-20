@@ -18,18 +18,18 @@ class Mutable {
   }
 }
 
-function refName(ref) {
+const refName = (ref) => {
   return ref.type === "Identifier" ? ref.name : ref.id.name;
 }
 
-function classify(side) {
+const classify = (side) => {
   side = side.trim();
   if (side.startsWith("mutable ")) return { kind: "mutable", base: side.slice(8).trim() };
   if (side.startsWith("viewof ")) return { kind: "viewof", base: side.slice(7).trim() };
   return { kind: "value", base: side };
 }
 
-function parseImportNames(src) {
+const parseImportNames = (src) => {
   const m = src.match(/import\s*\{([^}]*)\}/);
   if (!m) return [];
   return m[1].split(",").map((s) => s.trim()).filter(Boolean).map((token) => {
@@ -40,7 +40,7 @@ function parseImportNames(src) {
   });
 }
 
-function specVars(spec) {
+const specVars = (spec) => {
   const { kind, srcBase, localBase } = spec;
   if (kind === "viewof") return [
     { srcName: `viewof ${srcBase}`, localName: `viewof ${localBase}` },
@@ -53,7 +53,7 @@ function specVars(spec) {
   return [{ srcName: srcBase, localName: localBase }];
 }
 
-function parseImportSpec(src) {
+const parseImportSpec = (src) => {
   const um = src.match(/from\s+["']([^"']+)["']/);
   if (!um) throw new Error("Unsupported import syntax");
   const spec = um[1];
@@ -71,7 +71,7 @@ function parseImportSpec(src) {
   return { url, injections };
 }
 
-function resolveInputs(cell) {
+const resolveInputs = (cell) => {
   const seen = new Set();
   const inputs = [];
   for (const ref of cell.references || []) {
@@ -88,7 +88,7 @@ function resolveInputs(cell) {
   return inputs;
 }
 
-function rewriteBody(stripped, cell) {
+const rewriteBody = (stripped, cell) => {
   const refs = (cell.references || [])
     .filter((ref) => ref.type === "ViewExpression" || ref.type === "MutableExpression")
     .filter((ref) => ref.start >= cell.body.start && ref.end <= cell.body.end)
@@ -102,7 +102,7 @@ function rewriteBody(stripped, cell) {
   return body;
 }
 
-function buildFn(body, cell, inputs) {
+const buildFn = (body, cell, inputs) => {
   const args = inputs.map((inp) => {
     const mm = inp.match(/^mutable (.+)$/);
     if (mm) return `__mutable_${mm[1]}__`;
@@ -125,7 +125,7 @@ function buildFn(body, cell, inputs) {
   return (0, eval)(`((${args}) => (${body}))`);
 }
 
-function transpile(src) {
+const transpile = (src) => {
   const stripped = src.trim();
   const cell = parseCell(stripped);
 
@@ -173,23 +173,30 @@ function transpile(src) {
   return [{ name: cell.id.name, inputs, fn, show: true }];
 }
 
-function makeErrorDiv(src, err) {
+const makeErrorDiv = (src, err) => {
   const wrap = document.createElement("div");
   wrap.className = "cell observablehq observablehq--error";
+
   const msg = document.createElement("div");
   msg.className = "observablehq--inspect";
-  msg.textContent = "RuntimeError: "+err.message;
+  msg.textContent = "Error: "+err.message;
   wrap.appendChild(msg);
+
+  const src = document.createElement("div");
+  src.className = "observablehq--inspect";
+  src.textContent = "Source: "+src;
+  wrap.appendChild(src);
+
   return wrap;
 }
 
-function preRegister(main, name) {
+const preRegister = (main, name) => {
   const v = main.variable(null);
   v.define(name, [], () => new Promise(() => {}));
   return v;
 }
 
-export async function render(cells, container = document.body) {
+const render = async (cells, container = document.body) => {
   const runtime = new Runtime(stdlib);
   const main = runtime.module();
 
@@ -269,3 +276,51 @@ export async function render(cells, container = document.body) {
 
   return { runtime, main };
 }
+
+// split
+
+const isComplete = (src) => {
+  try {
+    parseCell(src);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+const resync = (s) => {
+  let i = s.indexOf("\n");
+  if (i === -1) return s.length;
+  while (i < s.length) {
+    const head = s.slice(0, i);
+    if (head.trim() && isComplete(head)) return i;
+    const next = s.indexOf("\n", i + 1);
+    if (next === -1) return s.length;
+    i = next;
+  }
+  return s.length;
+}
+
+const splitCells = (source) => {
+  const cells = [];
+  let s = source;
+  while (s.trim()) {
+    try {
+      parseCell(s);
+      cells.push(s.trim());
+      break;
+    } catch (e) {
+      if (e.pos != null && e.pos > 0 && isComplete(s.slice(0, e.pos))) {
+        cells.push(s.slice(0, e.pos).trim());
+        s = s.slice(e.pos);
+        continue;
+      }
+      const cut = resync(s);
+      cells.push(s.slice(0, cut).trim());
+      s = s.slice(cut);
+    }
+  }
+  return cells.filter((c) => c.length);
+}
+
+export { render, splitCells };

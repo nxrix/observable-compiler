@@ -7,14 +7,13 @@
   <title>Notebook</title>
 </head>
 <body>
-<script type="ojs">
-viewof a = Inputs.range([0, 100], { value: 10, label: "A" })
-viewof b = Inputs.range([0, 100], { value: 20, label: "B" })
-sum = a + b
-html`<h2>Sum = ${sum}</h2>`
-viewof observable
-import { viewof observable } from "@nxrix/palettes"
-</script>
-<script type="module" src="loader.js"></script>
+  <script type="ojs">
+    viewof a = Inputs.number({ label: "A" , value: 1 })
+    viewof b = Inputs.number({ label: "B" , value: 2 })
+    sum = a + b
+    viewof observable
+    import { viewof observable } from "@nxrix/palettes"
+  </script>
+  <script type="module" src="loader.js"></script>
 </body>
 </html>
