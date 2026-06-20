@@ -175,17 +175,10 @@ function transpile(src) {
 
 function makeErrorDiv(src, err) {
   const wrap = document.createElement("div");
-  wrap.className = "cell cell-error";
-
-  const label = document.createElement("pre");
-  label.className = "cell-src";
-  label.textContent = src;
-
-  const msg = document.createElement("pre");
-  msg.className = "cell-err-msg";
-  msg.textContent = err.message;
-
-  wrap.appendChild(label);
+  wrap.className = "cell observablehq observablehq--error";
+  const msg = document.createElement("div");
+  msg.className = "observablehq--inspect";
+  msg.textContent = "RuntimeError: "+err.message;
   wrap.appendChild(msg);
   return wrap;
 }
