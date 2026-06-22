@@ -1,4 +1,4 @@
-import { render, splitCells } from "./renderer.js";
+import { render, split } from "./renderer.js";
 
 async function run(container = document.body) {
   const cells = [];
@@ -9,7 +9,7 @@ async function run(container = document.body) {
     const show = script.getAttribute("show") !== "false";
     const pinned = script.hasAttribute("pinned");
     if (kind === "js") {
-      for (const value of splitCells(script.textContent)) cells.push({ value, type: "js", show, pinned });
+      for (const value of split(script.textContent)) cells.push({ value, type: "js", show, pinned });
     } else {
       cells.push({ value: script.textContent.trim(), type: kind, show, pinned });
     }
