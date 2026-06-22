@@ -321,7 +321,7 @@ const resync = (s) => {
   return s.length;
 };
 
-const splitCells = (source) => {
+const split = (source) => {
   const cells = [];
   let s = source;
   while (s.trim()) {
@@ -343,4 +343,4 @@ const splitCells = (source) => {
   return cells.filter((c) => c.length);
 };
 
-export { render, splitCells };
+export { render, split };
