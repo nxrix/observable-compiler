@@ -13,13 +13,13 @@
   </script>
   <script type="omd">
     ## Result
-    Sum is **${sum}**.
+    Sum is **${sum}**.  
     ${secret}
   </script>
   <script type="ojs" pinned>
     chart = Plot.plot({marks: [Plot.barY([sum])]})
   </script>
-  <script type="ojs" show="false">
+  <script type="ojs" hidden>
     secret = sum * 999
   </script>
   <script type="module" src="loader.js"></script>
